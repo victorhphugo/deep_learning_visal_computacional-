@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
 
-# Capturar a câmera
+# Capturar a câmera / OPENCV (cap)
 cap = cv2.VideoCapture()
 
 # Ferramenta de desenho do MediaPipe para desenhar os pontos faciais
@@ -19,21 +19,32 @@ with mp_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence
             print('Ignorando o frame vazio da câmera')
             continue
 
-        # Converte a imagem para RGB, pois o MediaPipe usa imagens em RGB
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # transformando bgr para rgb 
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
         # Processa a imagem e detecta pontos faciais
-        resultado = face_mesh.process(frame_rgb)
+        saida_face_mesh = face_mesh.process(frame)
 
+        #saida face_mesh 
+        frame = face_mesh.process(frame, cv2.COLOR_RGB2BGR)
+
+        # 1-vamos desenhar ? 
+        # 2-mostrar edda detecção
+        # 3-for (iteração) nas coordenadas da face
+        # 4-face_landmarks - conjunto das coordenadas da face
+        # 5- multi_Face_landmarks:x,y,z de cada ponto que MP encontrar no rosto 
+
+        for face_landmarks in saida_face_mesh.multi_face_landmarks:
+        #desenhando
+        # 1 - frame
+        # 2 -  face_landmark: os 
         # Desenha os pontos do Face Mesh, se algum rosto for detectado
-        if resultado.multi_face_landmarks:
-            for face_landmarks in resultado.multi_face_landmarks:
-                mp_drawing.draw_landmarks(frame, face_landmarks, mp_face_mesh.FACEMESH_CONTOURS)
 
-        # Exibe o frame com pontos faciais
+            mp_drawing.draw_landmarks(frame, face_landmarks, mp_face_mesh.FACEMESH_CONTOURS)
+
+    # Exibe o frame com pontos faciais
+     #Encerra o loop ao pressionar a tecla 'c'
         cv2.imshow('Camera', frame)
-
-        # Encerra o loop ao pressionar a tecla 'c'
         if cv2.waitKey(10) & 0xFF == ord('c'):
             break
 
